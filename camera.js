@@ -1,4 +1,4 @@
-let cameraStream = null;
+window.cameraStream = null;
 
 async function iniciarCamera() {
     console.log("Iniciando câmera...");
