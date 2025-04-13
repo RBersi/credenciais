@@ -35,6 +35,15 @@
             margin: 10px 0;
             border: 1px solid #ccc;
         }
+        #camera-preview {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            border: 2px solid #ccc;
+        }
+        #camera-controls {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -68,6 +77,13 @@
             <input type="file" id="imagemQrCode" accept="image/*">
             
             <button onclick="lerQrCode()">Ler QR Code</button>
+
+            <h3>Ou escaneie com a câmera:</h3>
+            <video id="camera-preview" autoplay playsinline></video>
+            <div id="camera-controls">
+                <button id="start-camera" onclick="iniciarCamera()">Iniciar Câmera</button>
+                <button id="stop-camera" onclick="pararCamera()" disabled>Parar Câmera</button>
+            </div>
             
             <div id="resultado" class="result"></div>
         </div>
@@ -81,6 +97,7 @@
 
     <script>
         let telaAtual = 1;
+        let cameraStream = null;
 
         function alternarTelas() {
             const tela1 = document.getElementById('tela1');
@@ -130,6 +147,56 @@
             }
         }
 
+        async function iniciarCamera() {
+            try {
+                const videoElement = document.getElementById('camera-preview');
+                const startButton = document.getElementById('start-camera');
+                const stopButton = document.getElementById('stop-camera');
+
+                // Acessa a câmera
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                videoElement.srcObject = cameraStream;
+
+                // Inicia a detecção de QR Code
+                const codeReader = new ZXing.BrowserQRCodeReader();
+                codeReader.decodeFromVideoDevice(undefined, 'camera-preview', (result, error) => {
+                    if (result) {
+                        console.log('QR Code detectado:', result.text);
+                        pararCamera(); // Para a câmera após detectar o QR Code
+                        verificarQrCode(result.text);
+                    }
+                    if (error && !(error instanceof ZXing.NotFoundException)) {
+                        console.error('Erro ao ler QR Code:', error);
+                    }
+                });
+
+                // Altera os estados dos botões
+                startButton.disabled = true;
+                stopButton.disabled = false;
+            } catch (error) {
+                console.error('Erro ao acessar a câmera:', error);
+                alert('Não foi possível acessar a câmera. Verifique as permissões ou tente novamente.');
+            }
+        }
+
+        function pararCamera() {
+            if (cameraStream) {
+                const tracks = cameraStream.getTracks();
+                tracks.forEach(track => track.stop());
+                cameraStream = null;
+
+                // Limpa o vídeo
+                const videoElement = document.getElementById('camera-preview');
+                videoElement.srcObject = null;
+
+                // Altera os estados dos botões
+                const startButton = document.getElementById('start-camera');
+                const stopButton = document.getElementById('stop-camera');
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            }
+        }
+
         function lerQrCode() {
             const input = document.getElementById('imagemQrCode');
             const file = input.files[0];
@@ -152,8 +219,6 @@
 
                         // Usar ZXing para decodificar o QR Code
                         const codeReader = new ZXing.BrowserQRCodeReader();
-                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
                         const result = await codeReader.decodeFromImage(undefined, image.src);
                         console.log('QR Code detectado:', result.text);
 
