@@ -107,8 +107,15 @@ function verificarLista() {
     listaAtual.nomes = nomes;
 
     // Atualizar a tela de verificação
-    document.getElementById("titulo-verificacao").textContent = titulo;
+    const tituloVerificacao = document.getElementById("titulo-verificacao");
     const listaVerificacao = document.getElementById("nomes-verificacao");
+
+    if (!tituloVerificacao || !listaVerificacao) {
+        console.error("Elementos da tela de verificação não encontrados.");
+        return;
+    }
+
+    tituloVerificacao.textContent = titulo;
     listaVerificacao.innerHTML = "";
 
     nomes.forEach(nome => {
