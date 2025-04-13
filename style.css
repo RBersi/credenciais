@@ -41,7 +41,7 @@ button:hover {
     background-color: #0056b3;
 }
 .hidden {
-    display: none;
+    display: none !important;
 }
 .lista-nomes label {
     display: flex;
