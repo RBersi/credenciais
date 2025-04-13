@@ -40,8 +40,16 @@ async function iniciarCamera() {
 
 function pararCamera() {
     if (cameraStream) {
+        console.log("Parando a câmera...");
+
+        // Interrompe todos os tracks da câmera
         const tracks = cameraStream.getTracks();
-        tracks.forEach(track => track.stop());
+        tracks.forEach(track => {
+            console.log(`Interrompendo track: ${track.kind}`);
+            track.stop();
+        });
+
+        // Limpa a referência ao stream
         cameraStream = null;
 
         // Limpa o vídeo
@@ -49,7 +57,10 @@ function pararCamera() {
         videoElement.srcObject = null;
 
         // Volta para a Tela 3
+        console.log("Voltando para a Tela 3...");
         mostrarTela(3);
+    } else {
+        console.warn("A câmera já está desativada.");
     }
 }
 
