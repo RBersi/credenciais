@@ -111,7 +111,10 @@ function verificarLista() {
         return;
     }
 
-    const nomes = nomesTexto.split("\n").map(nome => nome.trim()).filter(nome => nome !== "");
+    // Divide os nomes, remove espaços e quebras de linha desnecessários
+    const nomes = nomesTexto.split("\n")
+        .map(nome => nome.trim()) // Remove espaços extras
+        .filter(nome => nome !== ""); // Remove nomes vazios
 
     if (nomes.length === 0) {
         alert("Insira pelo menos um nome válido.");
@@ -136,12 +139,18 @@ function verificarLista() {
 
     nomes.forEach(nome => {
         const li = document.createElement("li");
-        li.innerHTML = `
-            <label>
-                <input type="checkbox" class="nome-checkbox" data-nome="${nome}">
-                ${nome}
-            </label>
-        `;
+
+        // Cria o checkbox e o rótulo usando textContent
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "nome-checkbox";
+        checkbox.dataset.nome = nome;
+
+        const label = document.createElement("label");
+        label.textContent = nome; // Insere apenas o texto do nome
+        label.prepend(checkbox); // Adiciona o checkbox ao início do rótulo
+
+        li.appendChild(label);
         listaVerificacao.appendChild(li);
     });
 
@@ -150,7 +159,7 @@ function verificarLista() {
 
     // Log para verificar o conteúdo final
     console.log("Título da lista:", tituloVerificacao.textContent);
-    console.log("Nomes da lista:", Array.from(listaVerificacao.children).map(li => li.textContent));
+    console.log("Nomes da lista:", Array.from(listaVerificacao.children).map(li => li.textContent.trim()));
 }
 
 // Função para ler QR Code via arquivo
