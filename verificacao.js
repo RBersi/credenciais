@@ -97,4 +97,48 @@ function lerQrCodeArquivo() {
 function verificarQrCode(data) {
     console.log("Verificando QR Code:", data);
 
-    const nomes = document.getElementById
+    const nomes = document.getElementById('nomesLista').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
+    const titulo = document.getElementById('tituloLista').value.trim();
+
+    if (!titulo || nomes.length === 0) {
+        alert('Preencha o título e a lista de nomes.');
+        return;
+    }
+
+    const [nomeQr, tituloQr] = data.split(' - ');
+    if (titulo !== tituloQr) {
+        alert('Título da lista incorreto.');
+        return;
+    }
+
+    const index = nomes.indexOf(nomeQr);
+    if (index !== -1) {
+        if (nomesConfirmados.includes(nomeQr)) {
+            alert(`Nome já confirmado: ${nomeQr}`);
+        } else {
+            nomesConfirmados.push(nomeQr);
+            carregarListaVerificacao();
+            alert(`Nome confirmado: ${nomeQr}`);
+        }
+    } else {
+        alert('Nome não encontrado na lista.');
+    }
+}
+
+// Função para carregar a lista de verificação
+function carregarListaVerificacao() {
+    const titulo = document.getElementById('tituloLista').value.trim();
+    const nomes = document.getElementById('nomesLista').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
+    const listaVerificacaoDiv = document.getElementById('lista-verificacao');
+    listaVerificacaoDiv.innerHTML = `<strong>Título: ${titulo}</strong><br><br>`;
+
+    nomes.forEach(nome => {
+        const isChecked = nomesConfirmados.includes(nome);
+        const label = document.createElement('label');
+        label.innerHTML = `
+            <input type="checkbox" ${isChecked ? 'checked' : ''} disabled>
+            ${isChecked ? `<strong>${nome}</strong>` : nome}
+        `;
+        listaVerificacaoDiv.appendChild(label);
+    });
+}
