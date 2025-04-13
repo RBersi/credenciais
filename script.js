@@ -28,6 +28,7 @@ function mostrarTela(tela) {
 
 // Garantir que a Tela 0 seja exibida ao carregar a página
 document.addEventListener('DOMContentLoaded', function () {
+    console.log("DOMContentLoaded acionado!");
     mostrarTela(0);
 });
 
