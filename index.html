@@ -71,7 +71,7 @@
             <div id="qrcodes" class="qrcode-container"></div>
         </div>
 
-        <!-- Tela 2: Ler QR Code com Imagem -->
+        <!-- Tela 2: Ler QR Code -->
         <div id="tela2" style="display: none;">
             <h2>Ler QR Code</h2>
             <label for="listaVerificacao">Lista de Nomes (um por linha):</label>
@@ -80,13 +80,8 @@
             <label for="tituloVerificacao">Título da Lista:</label>
             <input type="text" id="tituloVerificacao" placeholder="Ex: Participantes do Evento" required>
             
-            <label for="imagemQrCode">Imagem do QR Code:</label>
-            <input type="file" id="imagemQrCode" accept="image/*">
-            
-            <button onclick="lerQrCode()">Ler QR Code</button>
-
-            <h3>Ou use a câmera:</h3>
-            <button onclick="alternarTelas(3)">Ler com a Câmera</button>
+            <button onclick="lerQrCodeArquivo()">Ler QR Code (Arquivo)</button>
+            <button onclick="alternarTelas(3)">Ler QR Code (Câmera)</button>
 
             <div id="resultado" class="result"></div>
             <div id="lista-confirmados" class="lista-nomes"></div>
@@ -216,39 +211,44 @@
             }
         }
 
-        function lerQrCode() {
-            const input = document.getElementById('imagemQrCode');
-            const file = input.files[0];
-            if (!file) {
-                alert('Selecione uma imagem.');
-                return;
-            }
+        function lerQrCodeArquivo() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async function(event) {
+                const file = event.target.files[0];
+                if (!file) {
+                    alert('Selecione uma imagem.');
+                    return;
+                }
 
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                const image = new Image();
-                image.src = event.target.result;
-                image.onload = async function() {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        canvas.width = image.width;
-                        canvas.height = image.height;
-                        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    const image = new Image();
+                    image.src = event.target.result;
+                    image.onload = async function() {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            canvas.width = image.width;
+                            canvas.height = image.height;
+                            context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-                        // Usar ZXing para decodificar o QR Code
-                        const codeReader = new ZXing.BrowserQRCodeReader();
-                        const result = await codeReader.decodeFromImage(undefined, image.src);
-                        console.log('QR Code detectado:', result.text);
+                            // Usar ZXing para decodificar o QR Code
+                            const codeReader = new ZXing.BrowserQRCodeReader();
+                            const result = await codeReader.decodeFromImage(undefined, image.src);
+                            console.log('QR Code detectado:', result.text);
 
-                        verificarQrCode(result.text);
-                    } catch (error) {
-                        console.warn('QR Code não encontrado na imagem:', error);
-                        document.getElementById('resultado').innerHTML = '<span class="error">QR Code não encontrado.</span>';
-                    }
+                            verificarQrCode(result.text);
+                        } catch (error) {
+                            console.warn('QR Code não encontrado na imagem:', error);
+                            document.getElementById('resultado').innerHTML = '<span class="error">QR Code não encontrado.</span>';
+                        }
+                    };
                 };
+                reader.readAsDataURL(file);
             };
-            reader.readAsDataURL(file);
+            input.click();
         }
 
         function verificarQrCode(data) {
