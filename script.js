@@ -147,6 +147,10 @@ function verificarLista() {
 
     console.log("Alternando para a tela de verificação...");
     changeScreen("verificar-lista");
+
+    // Log para verificar o conteúdo final
+    console.log("Título da lista:", tituloVerificacao.textContent);
+    console.log("Nomes da lista:", Array.from(listaVerificacao.children).map(li => li.textContent));
 }
 
 // Função para ler QR Code via arquivo
