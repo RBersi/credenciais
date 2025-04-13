@@ -125,6 +125,19 @@ input, textarea {
     text-decoration: none;
 }
 
+#notificacoes {
+    margin-top: 1rem;
+    text-align: center;
+    color: #555;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
 .footer a:hover {
     text-decoration: underline;
 }
