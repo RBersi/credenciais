@@ -37,7 +37,7 @@ function mostrarTela(tela) {
 document.addEventListener('DOMContentLoaded', function () {
     console.log("DOMContentLoaded acionado!");
 
-    // Oculta todas as telas explicitamente
+    // Força a ocultação de todas as telas explicitamente
     document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
 
     // Exibe a Tela 0
