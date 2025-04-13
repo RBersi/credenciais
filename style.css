@@ -49,6 +49,7 @@ body {
     flex: 1;
     padding: 1rem;
     overflow-y: auto;
+    min-height: 0; /* Garante que o conteúdo flexível não ocupe mais espaço do que o disponível */
 }
 
 .screen {
@@ -141,3 +142,17 @@ input, textarea {
 .footer a:hover {
     text-decoration: underline;
 }
+
+#verificar-lista {
+    min-height: 100px; /* Altura mínima temporária */
+}
+
+#lista-verificacao {
+    margin-top: 1rem;
+}
+
+#nomes-verificacao {
+    list-style-type: none;
+    padding: 0;
+}
+
