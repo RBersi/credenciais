@@ -1,3 +1,4 @@
+// Variável global compartilhada
 window.cameraStream = null;
 
 async function iniciarCamera() {
@@ -21,8 +22,8 @@ async function iniciarCamera() {
 
         // Acessa a câmera
         console.log("Acessando a câmera...");
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        videoElement.srcObject = cameraStream;
+        window.cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        videoElement.srcObject = window.cameraStream;
 
         // Inicia a detecção de QR Code
         console.log("Iniciando detecção de QR Code...");
@@ -50,17 +51,17 @@ function pararCamera() {
     console.log("Parando a câmera...");
 
     return new Promise((resolve, reject) => {
-        if (cameraStream) {
+        if (window.cameraStream) {
             try {
                 // Interrompe todos os tracks da câmera
-                const tracks = cameraStream.getTracks();
+                const tracks = window.cameraStream.getTracks();
                 tracks.forEach(track => {
                     console.log(`Interrompendo track: ${track.kind}`);
                     track.stop(); // Interrompe o track
                 });
 
                 // Limpa a referência ao stream
-                cameraStream = null;
+                window.cameraStream = null;
 
                 // Limpa o vídeo
                 const videoElement = document.getElementById('camera-preview');
