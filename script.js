@@ -1,6 +1,7 @@
 let cameraStream = null;
 let nomesConfirmados = [];
 
+// Função para alternar entre telas
 function mostrarTela(tela) {
     // Oculta todas as telas
     document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
@@ -24,6 +25,11 @@ function mostrarTela(tela) {
         carregarListaVerificacao();
     }
 }
+
+// Garantir que a Tela 0 seja exibida ao carregar a página
+document.addEventListener('DOMContentLoaded', function () {
+    mostrarTela(0);
+});
 
 function limparCamposTela1() {
     document.getElementById('tituloCadastro').value = '';
