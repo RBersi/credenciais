@@ -8,7 +8,14 @@ let listaAtual = {
 function changeScreen(screenId) {
     const screens = document.querySelectorAll(".screen");
     screens.forEach(screen => screen.classList.remove("active"));
-    document.getElementById(screenId).classList.add("active");
+    const currentScreen = document.getElementById(screenId);
+    
+    if (currentScreen) {
+        currentScreen.classList.add("active");
+        console.log(`Tela '${screenId}' ativada.`); // Log adicionado aqui
+    } else {
+        console.error(`Tela com ID '${screenId}' não encontrada.`);
+    }
 }
 
 // Função para inicializar o sistema
