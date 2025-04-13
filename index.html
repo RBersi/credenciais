@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto de Credenciais</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        .qrcode-container {
+            margin-top: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .highlight {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        img.qrcode {
+            display: block;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Projeto de Credenciais</h1>
+
+        <!-- Tela 1: Criar QR Code -->
+        <div id="tela1">
+            <h2>Criar QR Code</h2>
+            <label for="titulo">Título da Lista:</label>
+            <input type="text" id="titulo" placeholder="Ex: Participantes do Evento" required>
+            
+            <label for="nomes">Nomes (um por linha):</label>
+            <textarea id="nomes" placeholder="João Silva&#10;Maria Souza&#10;José Almeida"></textarea>
+            
+            <button onclick="criarQRCodes()">Gerar QR Codes</button>
+            
+            <div id="qrcodes" class="qrcode-container"></div>
+        </div>
+
+        <!-- Tela 2: Ler QR Code -->
+        <div id="tela2" style="display: none;">
+            <h2>Ler QR Code</h2>
+            <label for="listaVerificacao">Lista de Nomes (um por linha):</label>
+            <textarea id="listaVerificacao" placeholder="João Silva&#10;Maria Souza&#10;José Almeida"></textarea>
+            
+            <label for="tituloVerificacao">Título da Lista:</label>
+            <input type="text" id="tituloVerificacao" placeholder="Ex: Participantes do Evento" required>
+            
+            <label for="imagemQrCode">Imagem do QR Code:</label>
+            <input type="file" id="imagemQrCode" accept="image/*">
+            
+            <button onclick="lerQrCode()">Ler QR Code</button>
+            
+            <div id="resultado" class="result"></div>
+        </div>
+
+        <button onclick="alternarTelas()">Alternar Telas</button>
+    </div>
+
+    <!-- Bibliotecas Externas -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+
+    <script>
+        let telaAtual = 1;
+
+        function alternarTelas() {
+            const tela1 = document.getElementById('tela1');
+            const tela2 = document.getElementById('tela2');
+            if (telaAtual === 1) {
+                tela1.style.display = 'none';
+                tela2.style.display = 'block';
+                telaAtual = 2;
+            } else {
+                tela1.style.display = 'block';
+                tela2.style.display = 'none';
+                telaAtual = 1;
+            }
+        }
+
+        function criarQRCodes() {
+            try {
+                const titulo = document.getElementById('titulo').value.trim();
+                const nomes = document.getElementById('nomes').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
+                const qrcodeContainer = document.getElementById('qrcodes');
+                qrcodeContainer.innerHTML = '';
+
+                if (!titulo || nomes.length === 0) {
+                    alert('Preencha o título e pelo menos um nome.');
+                    return;
+                }
+
+                console.log('Gerando QR Codes para:', nomes);
+
+                nomes.forEach(nome => {
+                    const conteudo = `${nome} - ${titulo}`;
+                    const qrCode = qrcode(0, 'M');
+                    qrCode.addData(conteudo, 'Byte');
+                    qrCode.make();
+
+                    // Cria uma tag <img> para exibir o QR Code
+                    const imgTag = qrCode.createImgTag(4); // Escala ajustável
+                    const div = document.createElement('div');
+                    div.innerHTML = `<p>${nome}</p>${imgTag}`;
+                    qrcodeContainer.appendChild(div);
+                });
+
+                console.log('QR Codes gerados com sucesso.');
+            } catch (error) {
+                console.error('Erro ao gerar QR Codes:', error);
+                alert('Ocorreu um erro ao gerar os QR Codes. Verifique o console para mais detalhes.');
+            }
+        }
+
+        function lerQrCode() {
+            const input = document.getElementById('imagemQrCode');
+            const file = input.files[0];
+            if (!file) {
+                alert('Selecione uma imagem.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const image = new Image();
+                image.src = event.target.result;
+                image.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        console.log('Processando imagem para leitura de QR Code...');
+                        const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+                        if (qrCode) {
+                            console.log('QR Code detectado:', qrCode.data);
+                            verificarQrCode(qrCode.data);
+                        } else {
+                            console.warn('QR Code não encontrado na imagem.');
+                            document.getElementById('resultado').innerHTML = '<span class="error">QR Code não encontrado.</span>';
+                        }
+                    } catch (error) {
+                        console.error('Erro ao processar imagem:', error);
+                        alert('Ocorreu um erro ao processar a imagem. Verifique o console para mais detalhes.');
+                    }
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function verificarQrCode(data) {
+            const nomes = document.getElementById('listaVerificacao').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
+            const titulo = document.getElementById('tituloVerificacao').value.trim();
+
+            if (!titulo || nomes.length === 0) {
+                alert('Preencha o título e a lista de nomes.');
+                return;
+            }
+
+            const [nomeQr, tituloQr] = data.split(' - ');
+            if (titulo !== tituloQr) {
+                document.getElementById('resultado').innerHTML = '<span class="error">Título da lista incorreto.</span>';
+                return;
+            }
+
+            const index = nomes.indexOf(nomeQr);
+            if (index !== -1) {
+                nomes[index] = `<span class="highlight">${nomeQr}</span>`;
+                document.getElementById('resultado').innerHTML = `<span class="highlight">Nome encontrado: ${nomeQr}</span>`;
+                document.getElementById('listaVerificacao').value = nomes.join('\n');
+            } else {
+                document.getElementById('resultado').innerHTML = '<span class="error">Nome não encontrado na lista.</span>';
+            }
+        }
+    </script>
+</body>
+</html>
