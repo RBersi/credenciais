@@ -31,9 +31,10 @@ async function iniciarCamera() {
             if (result) {
                 console.log('QR Code detectado:', result.text);
 
-                // Para a câmera e processa o QR Code
-                pararCamera();
-                verificarQrCode(result.text);
+                // Para a câmera antes de processar o QR Code
+                pararCamera().then(() => {
+                    verificarQrCode(result.text); // Processa o QR Code após a câmera ser desativada
+                });
             }
             if (error && !(error instanceof ZXing.NotFoundException)) {
                 console.error('Erro ao ler QR Code:', error);
@@ -48,27 +49,40 @@ async function iniciarCamera() {
 function pararCamera() {
     console.log("Parando a câmera...");
 
-    if (cameraStream) {
-        // Interrompe todos os tracks da câmera
-        const tracks = cameraStream.getTracks();
-        tracks.forEach(track => {
-            console.log(`Interrompendo track: ${track.kind}`);
-            track.stop();
-        });
+    return new Promise((resolve, reject) => {
+        if (cameraStream) {
+            try {
+                // Interrompe todos os tracks da câmera
+                const tracks = cameraStream.getTracks();
+                tracks.forEach(track => {
+                    console.log(`Interrompendo track: ${track.kind}`);
+                    track.stop(); // Interrompe o track
+                });
 
-        // Limpa a referência ao stream
-        cameraStream = null;
+                // Limpa a referência ao stream
+                cameraStream = null;
 
-        // Limpa o vídeo
-        const videoElement = document.getElementById('camera-preview');
-        videoElement.srcObject = null;
-    } else {
-        console.warn("A câmera já está desativada.");
-    }
+                // Limpa o vídeo
+                const videoElement = document.getElementById('camera-preview');
+                if (videoElement) {
+                    videoElement.srcObject = null; // Remove o stream do elemento <video>
+                }
 
-    // Volta para a Tela 3
-    console.log("Voltando para a Tela 3...");
-    mostrarTela(3);
+                console.log("Câmera desativada com sucesso.");
+                resolve();
+            } catch (error) {
+                console.error("Erro ao desativar a câmera:", error);
+                reject(error);
+            }
+        } else {
+            console.warn("A câmera já está desativada.");
+            resolve();
+        }
+    }).then(() => {
+        // Volta para a Tela 3 após desativar a câmera
+        console.log("Voltando para a Tela 3...");
+        mostrarTela(3);
+    });
 }
 
 function lerQrCodeArquivo() {
