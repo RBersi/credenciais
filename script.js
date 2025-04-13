@@ -6,13 +6,15 @@ let listaAtual = {
 
 // Função para alternar entre telas
 function changeScreen(screenId) {
+    console.log(`Alternando para a tela: '${screenId}'`);
+
     const screens = document.querySelectorAll(".screen");
     screens.forEach(screen => screen.classList.remove("active"));
+
     const currentScreen = document.getElementById(screenId);
-    
     if (currentScreen) {
         currentScreen.classList.add("active");
-        console.log(`Tela '${screenId}' ativada.`); // Log adicionado aqui
+        console.log(`Tela '${screenId}' ativada.`);
     } else {
         console.error(`Tela com ID '${screenId}' não encontrada.`);
     }
