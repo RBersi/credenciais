@@ -38,8 +38,29 @@ function gerarQRCodes() {
     listaAtual.titulo = titulo;
     listaAtual.nomes = nomes;
 
-    // Exibir QR Codes (apenas visualização por enquanto)
-    alert(`QR Codes gerados para a lista "${titulo}" com os seguintes nomes:\n${nomes.join(", ")}`);
+    // Limpar a área de exibição de QR Codes
+    const container = document.createElement("div");
+    container.innerHTML = "<h3>QR Codes Gerados:</h3>";
+
+    nomes.forEach(nome => {
+        const qrDiv = document.createElement("div");
+        qrDiv.style.margin = "1rem";
+        container.appendChild(qrDiv);
+
+        // Criar QR Code usando a biblioteca
+        new QRCode(qrDiv, {
+            text: `${nome} - ${titulo}`,
+            width: 128,
+            height: 128
+        });
+
+        // Adicionar o atributo 'title' ao canvas gerado
+        qrDiv.querySelector("canvas").setAttribute("title", `${nome} - ${titulo}`);
+    });
+
+    // Exibir os QR Codes na tela
+    const form = document.getElementById("form-criar-lista");
+    form.appendChild(container);
 }
 
 // Função para baixar QR Codes como um arquivo ZIP
@@ -49,8 +70,20 @@ function baixarQRCodes() {
         return;
     }
 
-    // Simulação de download de arquivo ZIP
-    alert(`Baixando arquivo ZIP com os QR Codes da lista "${listaAtual.titulo}".`);
+    const zip = new JSZip();
+    const folder = zip.folder(listaAtual.titulo);
+
+    listaAtual.nomes.forEach(nome => {
+        const canvas = document.querySelector(`canvas[title="${nome} - ${listaAtual.titulo}"]`);
+        if (canvas) {
+            const dataURL = canvas.toDataURL("image/png");
+            folder.file(`${nome}-${listaAtual.titulo}.png`, dataURL.split(",")[1], { base64: true });
+        }
+    });
+
+    zip.generateAsync({ type: "blob" }).then(content => {
+        saveAs(content, `${listaAtual.titulo}.zip`);
+    });
 }
 
 // Função para verificar lista
@@ -124,6 +157,7 @@ function processarQRCode(qrData) {
 
         if (!qrData.includes(listaAtual.titulo)) {
             mensagem.textContent = "QR Code não corresponde à lista atual.";
+            mensagem.className = "error";
             return;
         }
 
@@ -134,8 +168,10 @@ function processarQRCode(qrData) {
         if (checkbox) {
             checkbox.checked = true;
             mensagem.textContent = `Nome "${nome}" encontrado e marcado.`;
+            mensagem.className = "success";
         } else {
             mensagem.textContent = "Nome não encontrado na lista.";
+            mensagem.className = "error";
         }
     } catch (error) {
         console.error("Erro ao processar QR Code:", error);
@@ -150,6 +186,29 @@ function abrirCamera() {
         .then(stream => {
             video.srcObject = stream;
             video.play();
+
+            // Processar o vídeo continuamente
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            function processFrame() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (qrCode) {
+                        processarQRCode(qrCode.data);
+                        encerrarCamera(); // Encerra a câmera após ler o QR Code
+                    }
+                }
+                requestAnimationFrame(processFrame);
+            }
+
+            processFrame();
         })
         .catch(error => {
             console.error("Erro ao acessar a câmera:", error);
