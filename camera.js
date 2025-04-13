@@ -1,4 +1,5 @@
 async function iniciarCamera() {
+    console.log("Iniciando câmera...");
     if (!verificarSuporteCamera()) {
         exibirErro('Seu navegador não suporta a API de câmera.');
         return;
@@ -9,7 +10,9 @@ async function iniciarCamera() {
         const telaCamera = document.getElementById('tela-camera');
 
         // Alterna para a tela de câmera
+        console.log("Ocultando todas as telas...");
         document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+        console.log("Exibindo tela de câmera...");
         telaCamera.classList.remove('hidden');
 
         // Acessa a câmera
