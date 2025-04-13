@@ -1,4 +1,9 @@
 async function iniciarCamera() {
+    if (!verificarSuporteCamera()) {
+        exibirErro('Seu navegador não suporta a API de câmera.');
+        return;
+    }
+
     try {
         const videoElement = document.getElementById('camera-preview');
         const telaCamera = document.getElementById('tela-camera');
@@ -26,7 +31,7 @@ async function iniciarCamera() {
         });
     } catch (error) {
         console.error('Erro ao acessar a câmera:', error);
-        alert('Não foi possível acessar a câmera. Verifique as permissões ou tente novamente.');
+        exibirErro('Não foi possível acessar a câmera. Verifique as permissões ou tente novamente.');
     }
 }
 
