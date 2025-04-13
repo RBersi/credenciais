@@ -14,6 +14,10 @@ function changeScreen(screenId) {
     const currentScreen = document.getElementById(screenId);
     if (currentScreen) {
         currentScreen.classList.add("active");
+
+        // Forçar atualização da tela
+        currentScreen.offsetHeight; // Trigger reflow
+
         console.log(`Tela '${screenId}' ativada.`);
     } else {
         console.error(`Tela com ID '${screenId}' não encontrada.`);
