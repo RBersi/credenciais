@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto de Credenciais</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        .qrcode-container {
+            margin-top: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .highlight {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        img.qrcode {
+            display: block;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+        }
+        #camera-preview {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            border: 2px solid #ccc;
+        }
+        #camera-controls {
+            margin-top: 10px;
+        }
+        .lista-nomes {
+            margin-top: 20px;
+        }
+        .lista-nomes label {
+            display: block;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Projeto de Credenciais</h1>
+
+        <!-- Tela 1: Criar QR Code -->
+        <div id="tela1">
+            <h2>Criar QR Code</h2>
+            <label for="titulo">Título da Lista:</label>
+            <input type="text" id="titulo" placeholder="Ex: Participantes do Evento" required>
+            
+            <label for="nomes">Nomes (um por linha):</label>
+            <textarea id="nomes" placeholder="João Silva&#10;Maria Souza&#10;José Almeida"></textarea>
+            
+            <button onclick="criarQRCodes()">Gerar QR Codes</button>
+            
+            <div id="qrcodes" class="qrcode-container"></div>
+        </div>
+
+        <!-- Tela 2: Ler QR Code com Imagem -->
+        <div id="tela2" style="display: none;">
+            <h2>Ler QR Code</h2>
+            <label for="listaVerificacao">Lista de Nomes (um por linha):</label>
+            <textarea id="listaVerificacao" placeholder="João Silva&#10;Maria Souza&#10;José Almeida"></textarea>
+            
+            <label for="tituloVerificacao">Título da Lista:</label>
+            <input type="text" id="tituloVerificacao" placeholder="Ex: Participantes do Evento" required>
+            
+            <label for="imagemQrCode">Imagem do QR Code:</label>
+            <input type="file" id="imagemQrCode" accept="image/*">
+            
+            <button onclick="lerQrCode()">Ler QR Code</button>
+
+            <h3>Ou use a câmera:</h3>
+            <button onclick="alternarTelas(3)">Ler com a Câmera</button>
+
+            <div id="resultado" class="result"></div>
+            <div id="lista-confirmados" class="lista-nomes"></div>
+        </div>
+
+        <!-- Tela 3: Ler QR Code com Câmera -->
+        <div id="tela3" style="display: none;">
+            <h2>Escanear QR Code com a Câmera</h2>
+            <video id="camera-preview" autoplay playsinline></video>
+            <div id="camera-controls">
+                <button id="start-camera" onclick="iniciarCamera()">Iniciar Câmera</button>
+                <button id="stop-camera" onclick="pararCamera()" disabled>Parar Câmera</button>
+            </div>
+        </div>
+
+        <button onclick="alternarTelas()">Alternar Telas</button>
+    </div>
+
+    <!-- Bibliotecas Externas -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+
+    <script>
+        let telaAtual = 1;
+        let cameraStream = null;
+        let nomesConfirmados = [];
+
+        function alternarTelas(destino) {
+            const telas = [document.getElementById('tela1'), document.getElementById('tela2'), document.getElementById('tela3')];
+            telas.forEach((tela, index) => {
+                if (destino === undefined) {
+                    tela.style.display = telaAtual === index + 1 ? 'none' : 'block';
+                } else {
+                    tela.style.display = destino === index + 1 ? 'block' : 'none';
+                }
+            });
+
+            if (destino !== undefined) {
+                telaAtual = destino;
+            } else {
+                telaAtual = telaAtual === 1 ? 2 : 1;
+            }
+        }
+
+        function criarQRCodes() {
+            try {
+                const titulo = document.getElementById('titulo').value.trim();
+                const nomes = document.getElementById('nomes').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
+                const qrcodeContainer = document.getElementById('qrcodes');
+                qrcodeContainer.innerHTML = '';
+
+                if (!titulo || nomes.length === 0) {
+                    alert('Preencha o título e pelo menos um nome.');
+                    return;
+                }
+
+                console.log('Gerando QR Codes para:', nomes);
+
+                nomes.forEach(nome => {
+                    const conteudo = `${nome} - ${titulo}`;
+                    const qrCode = qrcode(0, 'M');
+                    qrCode.addData(conteudo, 'Byte');
+                    qrCode.make();
+
+                    // Cria uma tag <img> para exibir o QR Code
+                    const imgTag = qrCode.createImgTag(4); // Escala ajustável
+                    const div = document.createElement('div');
+                    div.innerHTML = `<p>${nome}</p>${imgTag}`;
+                    qrcodeContainer.appendChild(div);
+                });
+
+                console.log('QR Codes gerados com sucesso.');
+            } catch (error) {
+                console.error('Erro ao gerar QR Codes:', error);
+                alert('Ocorreu um erro ao gerar os QR Codes. Verifique o console para mais detalhes.');
+            }
+        }
+
+        async function iniciarCamera() {
+            try {
+                const videoElement = document.getElementById('camera-preview');
+                const startButton = document.getElementById('start-camera');
+                const stopButton = document.getElementById('stop-camera');
+
+                // Acessa a câmera
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                videoElement.srcObject = cameraStream;
+
+                // Inicia a detecção de QR Code
+                const codeReader = new ZXing.BrowserQRCodeReader();
+                codeReader.decodeFromVideoDevice(undefined, 'camera-preview', (result, error) => {
+                    if (result) {
+                        console.log('QR Code detectado:', result.text);
+                        pararCamera(); // Para a câmera após detectar o QR Code
+                        alternarTelas(2); // Retorna à Tela 2
+                        verificarQrCode(result.text);
+                    }
+                    if (error && !(error instanceof ZXing.NotFoundException)) {
+                        console.error('Erro ao ler QR Code:', error);
+                    }
+                });
+
+                // Altera os estados dos botões
+                startButton.disabled = true;
+                stopButton.disabled = false;
+            } catch (error) {
+                console.error('Erro ao acessar a câmera:', error);
+                alert('Não foi possível acessar a câmera. Verifique as permissões ou tente novamente.');
+            }
+        }
+
+        function pararCamera() {
+            if (cameraStream) {
+                const tracks = cameraStream.getTracks();
+                tracks.forEach(track => track.stop());
+                cameraStream = null;
+
+                // Limpa o vídeo
+                const videoElement = document.getElementById('camera-preview');
+                videoElement.srcObject = null;
+
+                // Altera os estados dos botões
+                const startButton = document.getElementById('start-camera');
+                const stopButton = document.getElementById('stop-camera');
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            }
+        }
+
+        function lerQrCode() {
+            const input = document.getElementById('imagemQrCode');
+            const file = input.files[0];
+            if (!file) {
+                alert('Selecione uma imagem.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const image = new Image();
+                image.src = event.target.result;
+                image.onload = async function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                        // Usar ZXing para decodificar o QR Code
+                        const codeReader = new ZXing.BrowserQRCodeReader();
+                        const result = await codeReader.decodeFromImage(undefined, image.src);
+                        console.log('QR Code detectado:', result.text);
+
+                        verificarQrCode(result.text);
+                    } catch (error) {
+                        console.warn('QR Code não encontrado na imagem:', error);
+                        document.getElementById('resultado').innerHTML = '<span class="error">QR Code não encontrado.</span>';
+                    }
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function verificarQrCode(data) {
+            const nomes = document.getElementById('listaVerificacao').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
+            const titulo = document.getElementById('tituloVerificacao').value.trim();
+
+            if (!titulo || nomes.length === 0) {
+                alert('Preencha o título e a lista de nomes.');
+                return;
+            }
+
+            const [nomeQr, tituloQr] = data.split(' - ');
+            if (titulo !== tituloQr) {
+                document.getElementById('resultado').innerHTML = '<span class="error">Título da lista incorreto.</span>';
+                return;
+            }
+
+            const index = nomes.indexOf(nomeQr);
+            if (index !== -1) {
+                if (nomesConfirmados.includes(nomeQr)) {
+                    document.getElementById('resultado').innerHTML = `<span class="error">Nome já confirmado: ${nomeQr}</span>`;
+                } else {
+                    nomesConfirmados.push(nomeQr);
+                    atualizarListaConfirmados(nomes);
+                    document.getElementById('resultado').innerHTML = `<span class="highlight">Nome confirmado: ${nomeQr}</span>`;
+                }
+            } else {
+                document.getElementById('resultado').innerHTML = '<span class="error">Nome não encontrado na lista.</span>';
+            }
+        }
+
+        function atualizarListaConfirmados(nomes) {
+            const listaConfirmadosDiv = document.getElementById('lista-confirmados');
+            listaConfirmadosDiv.innerHTML = '<strong>Nomes Confirmados:</strong>';
+
+            nomes.forEach(nome => {
+                const isChecked = nomesConfirmados.includes(nome);
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleConfirmacao('${nome}')">
+                    ${nome}
+                `;
+                listaConfirmadosDiv.appendChild(label);
+            });
+        }
+
+        function toggleConfirmacao(nome) {
+            const index = nomesConfirmados.indexOf(nome);
+            if (index === -1) {
+                nomesConfirmados.push(nome);
+            } else {
+                nomesConfirmados.splice(index, 1);
+            }
+            const nomes = document.getElementById('listaVerificacao').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
+            atualizarListaConfirmados(nomes);
+        }
+    </script>
+</body>
+</html>
