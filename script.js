@@ -88,6 +88,8 @@ function baixarQRCodes() {
 
 // Função para verificar lista
 function verificarLista() {
+    console.log("Função verificarLista chamada");
+
     const titulo = document.getElementById("titulo-lista-inserir").value.trim();
     const nomesTexto = document.getElementById("nomes-lista-inserir").value.trim();
 
@@ -115,6 +117,7 @@ function verificarLista() {
         return;
     }
 
+    console.log("Atualizando tela de verificação...");
     tituloVerificacao.textContent = titulo;
     listaVerificacao.innerHTML = "";
 
@@ -129,7 +132,7 @@ function verificarLista() {
         listaVerificacao.appendChild(li);
     });
 
-    // Alternar para a tela de verificação
+    console.log("Alternando para a tela de verificação...");
     changeScreen("verificar-lista");
 }
 
