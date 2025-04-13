@@ -64,9 +64,9 @@ function baixarQRCodes() {
 
         setTimeout(() => {
             zip.generateAsync({ type: 'blob' }).then(content => {
-                saveAs(content, `${titulo}.zip`);
+                baixarArquivoZip(content, `${titulo}.zip`);
             });
-        }, 1000); // Aguarda o processamento dos QR Codes
+        }, 1000);
     } catch (error) {
         console.error('Erro ao baixar QR Codes:', error);
         alert('Ocorreu um erro ao baixar os QR Codes. Verifique o console para mais detalhes.');
