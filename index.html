@@ -1,80 +1,26 @@
-2<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeto de Credenciais</title>
+    <title>Página Inicial</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <!-- Tela 0: Início -->
-        <div id="tela0">
-            <h1>Painel Inicial</h1>
-            <button onclick="mostrarTela(1)">Ir para Cadastro</button>
-            <button onclick="mostrarTela(2)">Ir para Lista</button>
-        </div>
-
-        <!-- Tela 1: Cadastro -->
-        <div id="tela1" class="hidden">
-            <h2>Cadastro de QR Codes</h2>
-            <button onclick="mostrarTela(0)">Voltar ao Início</button>
-            <label for="tituloCadastro">Título da Lista:</label>
-            <input type="text" id="tituloCadastro" placeholder="Ex: Participantes do Evento" required>
-            
-            <label for="nomesCadastro">Nomes (um por linha):</label>
-            <textarea id="nomesCadastro" placeholder="João Silva&#10;Maria Souza&#10;José Almeida"></textarea>
-            
-            <button onclick="gerarQRCodes()">Gerar QR Codes</button>
-            <button onclick="baixarQRCodes()">Baixar QR Codes (.zip)</button>
-            
-            <div id="qrcodes" class="qrcode-container"></div>
-        </div>
-
-        <!-- Tela 2: Lista -->
-        <div id="tela2" class="hidden">
-            <h2>Lista de Verificação</h2>
-            <button onclick="mostrarTela(0)">Voltar ao Início</button>
-            <label for="tituloLista">Título da Lista:</label>
-            <input type="text" id="tituloLista" placeholder="Ex: Participantes do Evento" required>
-            
-            <label for="nomesLista">Nomes (um por linha):</label>
-            <textarea id="nomesLista" placeholder="João Silva&#10;Maria Souza&#10;José Almeida"></textarea>
-            
-            <button onclick="mostrarTela(3)">Ir para Verificação</button>
-        </div>
-
-        <!-- Tela 3: Verificação -->
-        <div id="tela3" class="hidden">
-            <h2>Verificação de QR Codes</h2>
-            <button onclick="mostrarTela(2)">Voltar à Lista</button>
-            <div id="lista-verificacao" class="lista-nomes"></div>
-            <button onclick="lerQrCodeArquivo()">Verificar QR Code (Arquivo)</button>
-            <button onclick="iniciarCamera()">Verificar QR Code (Câmera)</button>
-        </div>
-
-        <!-- Tela de Câmera -->
-        <div id="tela-camera" class="hidden">
-            <h2>Escanear QR Code</h2>
-            <video id="camera-preview" autoplay playsinline></video>
-            <button onclick="pararCamera()">Voltar</button>
+        <h1>Bem-vindo ao Sistema de Credenciais</h1>
+        <p>Escolha uma das opções abaixo:</p>
+        <div class="buttons">
+            <a href="cadastro.html" class="btn">Ir para Cadastro</a>
+            <a href="verificacao.html" class="btn">Ir para Verificação</a>
         </div>
     </div>
 
-    <!-- Bibliotecas Externas -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-    <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="utils.js"></script>
-    <script src="qrcode-generator.js"></script>
-    <script src="camera.js"></script>
-    <script src="script.js"></script>
-<footer style="text-align: center; margin-top: 20px; padding: 10px; background-color: #f9f9f9; border-top: 1px solid #ddd;">
-    Desenvolvido por 
-    <a href="https://github.com/RBersi" target="_blank" style="text-decoration: none; color: #007bff; font-weight: normal;">
-        Bersi
-    </a>
-</footer>
+    <footer style="text-align: center; margin-top: 20px; padding: 10px; background-color: #f9f9f9; border-top: 1px solid #ddd;">
+        Desenvolvido por 
+        <a href="https://github.com/RBersi" target="_blank" style="text-decoration: none; color: #007bff; font-weight: bold;">
+            Bersi
+        </a>
+    </footer>
 </body>
 </html>
