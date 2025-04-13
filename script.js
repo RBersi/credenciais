@@ -1,5 +1,5 @@
-let cameraStream = null;
-let nomesConfirmados = [];
+// Variáveis globais compartilhadas
+window.nomesConfirmados = [];
 
 // Função para alternar entre telas
 function mostrarTela(tela) {
@@ -57,11 +57,14 @@ function limparCamposTela2() {
     document.getElementById('tituloLista').value = '';
     document.getElementById('nomesLista').value = '';
     document.getElementById('lista-verificacao').innerHTML = '';
-    nomesConfirmados = [];
+    window.nomesConfirmados = [];
 }
 
 function limparCamposTela3() {
-    pararCamera();
+    // Certifica-se de que a câmera seja desativada corretamente
+    if (typeof pararCamera === 'function') {
+        pararCamera();
+    }
 }
 
 function carregarListaVerificacao() {
@@ -71,7 +74,7 @@ function carregarListaVerificacao() {
     listaVerificacaoDiv.innerHTML = `<strong>Título: ${titulo}</strong><br><br>`;
 
     nomes.forEach(nome => {
-        const isChecked = nomesConfirmados.includes(nome);
+        const isChecked = window.nomesConfirmados.includes(nome);
         const label = document.createElement('label');
         label.innerHTML = `
             <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleConfirmacao('${nome}')">
@@ -82,11 +85,11 @@ function carregarListaVerificacao() {
 }
 
 function toggleConfirmacao(nome) {
-    const index = nomesConfirmados.indexOf(nome);
+    const index = window.nomesConfirmados.indexOf(nome);
     if (index === -1) {
-        nomesConfirmados.push(nome);
+        window.nomesConfirmados.push(nome);
     } else {
-        nomesConfirmados.splice(index, 1);
+        window.nomesConfirmados.splice(index, 1);
     }
     carregarListaVerificacao();
 }
