@@ -77,7 +77,7 @@
 
     <!-- Bibliotecas Externas -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 
     <script>
         let telaAtual = 1;
@@ -139,10 +139,10 @@
             }
 
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = async function(event) {
                 const image = new Image();
                 image.src = event.target.result;
-                image.onload = function() {
+                image.onload = async function() {
                     try {
                         const canvas = document.createElement('canvas');
                         const context = canvas.getContext('2d');
@@ -150,30 +150,17 @@
                         canvas.height = image.height;
                         context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-                        // Pré-processamento: converter para escala de cinza
+                        // Usar ZXing para decodificar o QR Code
+                        const codeReader = new ZXing.BrowserQRCodeReader();
                         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                        const data = imageData.data;
-                        for (let i = 0; i < data.length; i += 4) {
-                            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                            data[i] = avg; // Red
-                            data[i + 1] = avg; // Green
-                            data[i + 2] = avg; // Blue
-                        }
-                        context.putImageData(imageData, 0, 0);
 
-                        console.log('Processando imagem para leitura de QR Code...');
-                        const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+                        const result = await codeReader.decodeFromImage(undefined, image.src);
+                        console.log('QR Code detectado:', result.text);
 
-                        if (qrCode) {
-                            console.log('QR Code detectado:', qrCode.data);
-                            verificarQrCode(qrCode.data);
-                        } else {
-                            console.warn('QR Code não encontrado na imagem.');
-                            document.getElementById('resultado').innerHTML = '<span class="error">QR Code não encontrado.</span>';
-                        }
+                        verificarQrCode(result.text);
                     } catch (error) {
-                        console.error('Erro ao processar imagem:', error);
-                        alert('Ocorreu um erro ao processar a imagem. Verifique o console para mais detalhes.');
+                        console.warn('QR Code não encontrado na imagem:', error);
+                        document.getElementById('resultado').innerHTML = '<span class="error">QR Code não encontrado.</span>';
                     }
                 };
             };
