@@ -7,7 +7,12 @@ function mostrarTela(tela) {
     document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
 
     // Mostra a tela selecionada
-    document.getElementById(`tela${tela}`).classList.remove('hidden');
+    const telaSelecionada = document.getElementById(`tela${tela}`);
+    if (telaSelecionada) {
+        telaSelecionada.classList.remove('hidden');
+    } else {
+        console.error(`Tela ${tela} não encontrada.`);
+    }
 
     // Limpa campos desnecessários ao alternar telas
     if (tela === 0) {
