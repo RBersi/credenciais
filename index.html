@@ -51,11 +51,21 @@
             display: block;
             margin: 5px 0;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Projeto de Credenciais</h1>
+
+        <!-- Botões de Navegação -->
+        <div>
+            <button onclick="mostrarTela(1)">Tela 1: Criar QR Code</button>
+            <button onclick="mostrarTela(2)">Tela 2: Ler QR Code</button>
+            <button onclick="mostrarTela(3)">Tela 3: Câmera</button>
+        </div>
 
         <!-- Tela 1: Criar QR Code -->
         <div id="tela1">
@@ -72,7 +82,7 @@
         </div>
 
         <!-- Tela 2: Ler QR Code -->
-        <div id="tela2" style="display: none;">
+        <div id="tela2" class="hidden">
             <h2>Ler QR Code</h2>
             <label for="listaVerificacao">Lista de Nomes (um por linha):</label>
             <textarea id="listaVerificacao" placeholder="João Silva&#10;Maria Souza&#10;José Almeida"></textarea>
@@ -81,14 +91,14 @@
             <input type="text" id="tituloVerificacao" placeholder="Ex: Participantes do Evento" required>
             
             <button onclick="lerQrCodeArquivo()">Ler QR Code (Arquivo)</button>
-            <button onclick="alternarTelas(3)">Ler QR Code (Câmera)</button>
+            <button onclick="mostrarTela(3)">Ler QR Code (Câmera)</button>
 
             <div id="resultado" class="result"></div>
             <div id="lista-confirmados" class="lista-nomes"></div>
         </div>
 
         <!-- Tela 3: Ler QR Code com Câmera -->
-        <div id="tela3" style="display: none;">
+        <div id="tela3" class="hidden">
             <h2>Escanear QR Code com a Câmera</h2>
             <video id="camera-preview" autoplay playsinline></video>
             <div id="camera-controls">
@@ -96,8 +106,6 @@
                 <button id="stop-camera" onclick="pararCamera()" disabled>Parar Câmera</button>
             </div>
         </div>
-
-        <button onclick="alternarTelas()">Alternar Telas</button>
     </div>
 
     <!-- Bibliotecas Externas -->
@@ -105,31 +113,27 @@
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 
     <script>
-        let telaAtual = 1;
         let cameraStream = null;
         let nomesConfirmados = [];
 
-        function alternarTelas(destino) {
-            const telas = [document.getElementById('tela1'), document.getElementById('tela2'), document.getElementById('tela3')];
+        function mostrarTela(tela) {
+            // Oculta todas as telas
+            document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
 
-            // Limpar campos desnecessários antes de alternar
-            if (destino === 1) {
+            // Mostra a tela selecionada
+            document.getElementById(`tela${tela}`).classList.remove('hidden');
+
+            // Limpa campos desnecessários ao alternar telas
+            if (tela === 1) {
                 limparCamposTela2();
                 limparCamposTela3();
-            } else if (destino === 2) {
+            } else if (tela === 2) {
                 limparCamposTela1();
                 limparCamposTela3();
-            } else if (destino === 3) {
+            } else if (tela === 3) {
                 limparCamposTela1();
                 limparCamposTela2();
             }
-
-            // Alternar visibilidade das telas
-            telas.forEach((tela, index) => {
-                tela.style.display = destino === index + 1 ? 'block' : 'none';
-            });
-
-            telaAtual = destino;
         }
 
         function limparCamposTela1() {
@@ -200,7 +204,7 @@
                     if (result) {
                         console.log('QR Code detectado:', result.text);
                         pararCamera(); // Para a câmera após detectar o QR Code
-                        alternarTelas(2); // Retorna à Tela 2
+                        mostrarTela(2); // Retorna à Tela 2
                         verificarQrCode(result.text);
                     }
                     if (error && !(error instanceof ZXing.NotFoundException)) {
