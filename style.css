@@ -151,8 +151,12 @@ input, textarea {
     margin-top: 1rem;
 }
 
+#lista-verificacao {
+    border: 1px solid red; /* Borda temporária */
+}
+
 #nomes-verificacao {
     list-style-type: none;
     padding: 0;
+    background-color: #f0f0f0; /* Fundo temporário */
 }
-
