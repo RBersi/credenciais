@@ -3,6 +3,8 @@ let nomesConfirmados = [];
 
 // Função para alternar entre telas
 function mostrarTela(tela) {
+    console.log(`Mostrando tela ${tela}...`);
+
     // Oculta todas as telas
     document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
 
