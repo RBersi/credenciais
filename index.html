@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Listas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="header">
+        <nav class="navbar">
+            <button class="nav-button" onclick="changeScreen('inicio')">Início</button>
+            <button class="nav-button" onclick="changeScreen('criar-lista')">Criar Lista</button>
+            <button class="nav-button" onclick="changeScreen('inserir-lista')">Inserir Lista</button>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="content">
+        <!-- Tela Início -->
+        <section id="inicio" class="screen active">
+            <h2>Bem-vindo ao Gerenciador de Listas</h2>
+            <div class="button-container">
+                <button class="main-button" onclick="changeScreen('criar-lista')">Criar Lista</button>
+                <button class="main-button" onclick="changeScreen('inserir-lista')">Inserir Lista</button>
+            </div>
+        </section>
+
+        <!-- Tela Criar Lista -->
+        <section id="criar-lista" class="screen">
+            <h2>Criar Lista</h2>
+            <form id="form-criar-lista">
+                <label for="titulo-lista">Título da Lista:</label>
+                <input type="text" id="titulo-lista" placeholder="Digite o título da lista" required>
+
+                <label for="nomes-lista">Nomes (separados por parágrafo):</label>
+                <textarea id="nomes-lista" rows="5" placeholder="Insira os nomes separados por parágrafo"></textarea>
+
+                <div class="button-container">
+                    <button type="button" class="main-button" id="gerar-qrcode">Gerar QR Code</button>
+                    <button type="button" class="main-button" id="baixar-qrcode">Baixar QR Code</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Tela Inserir Lista -->
+        <section id="inserir-lista" class="screen">
+            <h2>Inserir Lista</h2>
+            <form id="form-inserir-lista">
+                <label for="titulo-lista-inserir">Título da Lista:</label>
+                <input type="text" id="titulo-lista-inserir" placeholder="Digite o título da lista" required>
+
+                <label for="nomes-lista-inserir">Nomes (separados por parágrafo):</label>
+                <textarea id="nomes-lista-inserir" rows="5" placeholder="Insira os nomes separados por parágrafo"></textarea>
+
+                <button type="button" class="main-button" id="verificar-lista">Verificar</button>
+            </form>
+        </section>
+
+        <!-- Tela Verificar Lista -->
+        <section id="verificar-lista" class="screen">
+            <h2>Verificar Lista</h2>
+            <div id="lista-verificacao">
+                <p>Título da Lista: <span id="titulo-verificacao"></span></p>
+                <ul id="nomes-verificacao">
+                    <!-- Nomes serão inseridos dinamicamente -->
+                </ul>
+            </div>
+
+            <div class="button-container">
+                <button type="button" class="main-button" id="enviar-qrcode">Enviar QR Code</button>
+                <button type="button" class="main-button" onclick="changeScreen('camera')">Ler QR Code com Câmera</button>
+            </div>
+
+            <div id="notificacoes">
+                <p id="mensagem-notificacao"></p>
+            </div>
+        </section>
+
+        <!-- Tela Câmera -->
+        <section id="camera" class="screen">
+            <h2>Ler QR Code com Câmera</h2>
+            <video id="video-camera" autoplay></video>
+            <button type="button" class="main-button" onclick="encerrarCamera()">Encerrar Câmera</button>
+        </section>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <p>Desenvolvido por <a href="https://github.com/rbersi" target="_blank">Bersi</a></p>
+    </footer>
+
+    <!-- Script será adicionado posteriormente -->
+    <script src="script.js" defer></script>
+</body>
+</html>
