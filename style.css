@@ -52,11 +52,11 @@ body {
 }
 
 .screen {
-    display: none;
+    display: none; /* Todas as telas são ocultas por padrão */
 }
 
 .screen.active {
-    display: block;
+    display: block; /* Apenas a tela ativa é exibida */
 }
 
 h2 {
