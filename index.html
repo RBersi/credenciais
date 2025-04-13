@@ -111,19 +111,43 @@
 
         function alternarTelas(destino) {
             const telas = [document.getElementById('tela1'), document.getElementById('tela2'), document.getElementById('tela3')];
+
+            // Limpar campos desnecessários antes de alternar
+            if (destino === 1) {
+                limparCamposTela2();
+                limparCamposTela3();
+            } else if (destino === 2) {
+                limparCamposTela1();
+                limparCamposTela3();
+            } else if (destino === 3) {
+                limparCamposTela1();
+                limparCamposTela2();
+            }
+
+            // Alternar visibilidade das telas
             telas.forEach((tela, index) => {
-                if (destino === undefined) {
-                    tela.style.display = telaAtual === index + 1 ? 'none' : 'block';
-                } else {
-                    tela.style.display = destino === index + 1 ? 'block' : 'none';
-                }
+                tela.style.display = destino === index + 1 ? 'block' : 'none';
             });
 
-            if (destino !== undefined) {
-                telaAtual = destino;
-            } else {
-                telaAtual = telaAtual === 1 ? 2 : 1;
-            }
+            telaAtual = destino;
+        }
+
+        function limparCamposTela1() {
+            document.getElementById('titulo').value = '';
+            document.getElementById('nomes').value = '';
+            document.getElementById('qrcodes').innerHTML = '';
+        }
+
+        function limparCamposTela2() {
+            document.getElementById('listaVerificacao').value = '';
+            document.getElementById('tituloVerificacao').value = '';
+            document.getElementById('resultado').innerHTML = '';
+            document.getElementById('lista-confirmados').innerHTML = '';
+            nomesConfirmados = [];
+        }
+
+        function limparCamposTela3() {
+            pararCamera();
         }
 
         function criarQRCodes() {
