@@ -109,26 +109,26 @@ function verificarQrCode(data) {
     const titulo = document.getElementById('tituloLista').value.trim();
 
     if (!titulo || nomes.length === 0) {
-        alert('Preencha o título e a lista de nomes.');
+        console.warn('Preencha o título e a lista de nomes.');
         return;
     }
 
     const [nomeQr, tituloQr] = data.split(' - ');
     if (titulo !== tituloQr) {
-        alert('Título da lista incorreto.');
+        console.warn('Título da lista incorreto.');
         return;
     }
 
     const index = nomes.indexOf(nomeQr);
     if (index !== -1) {
         if (nomesConfirmados.includes(nomeQr)) {
-            alert(`Nome já confirmado: ${nomeQr}`);
+            console.log(`Nome já confirmado: ${nomeQr}`);
         } else {
             nomesConfirmados.push(nomeQr);
             carregarListaVerificacao();
-            alert(`Nome confirmado: ${nomeQr}`);
+            console.log(`Nome confirmado: ${nomeQr}`);
         }
     } else {
-        alert('Nome não encontrado na lista.');
+        console.warn('Nome não encontrado na lista.');
     }
 }
