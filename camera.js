@@ -1,5 +1,9 @@
+let cameraStream = null;
+
 async function iniciarCamera() {
     console.log("Iniciando câmera...");
+
+    // Verifica se o navegador suporta a API de câmera
     if (!verificarSuporteCamera()) {
         exibirErro('Seu navegador não suporta a API de câmera.');
         return;
@@ -16,16 +20,19 @@ async function iniciarCamera() {
         telaCamera.classList.remove('hidden');
 
         // Acessa a câmera
+        console.log("Acessando a câmera...");
         cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         videoElement.srcObject = cameraStream;
 
         // Inicia a detecção de QR Code
+        console.log("Iniciando detecção de QR Code...");
         const codeReader = new ZXing.BrowserQRCodeReader();
         codeReader.decodeFromVideoDevice(undefined, 'camera-preview', (result, error) => {
             if (result) {
                 console.log('QR Code detectado:', result.text);
-                pararCamera(); // Para a câmera após detectar o QR Code
-                mostrarTela(3); // Retorna à Tela 3
+
+                // Para a câmera e processa o QR Code
+                pararCamera();
                 verificarQrCode(result.text);
             }
             if (error && !(error instanceof ZXing.NotFoundException)) {
@@ -39,9 +46,9 @@ async function iniciarCamera() {
 }
 
 function pararCamera() {
-    if (cameraStream) {
-        console.log("Parando a câmera...");
+    console.log("Parando a câmera...");
 
+    if (cameraStream) {
         // Interrompe todos os tracks da câmera
         const tracks = cameraStream.getTracks();
         tracks.forEach(track => {
@@ -55,13 +62,13 @@ function pararCamera() {
         // Limpa o vídeo
         const videoElement = document.getElementById('camera-preview');
         videoElement.srcObject = null;
-
-        // Volta para a Tela 3
-        console.log("Voltando para a Tela 3...");
-        mostrarTela(3);
     } else {
         console.warn("A câmera já está desativada.");
     }
+
+    // Volta para a Tela 3
+    console.log("Voltando para a Tela 3...");
+    mostrarTela(3);
 }
 
 function lerQrCodeArquivo() {
@@ -71,7 +78,7 @@ function lerQrCodeArquivo() {
     input.onchange = async function(event) {
         const file = event.target.files[0];
         if (!file) {
-            alert('Selecione uma imagem.');
+            console.warn('Nenhum arquivo selecionado.');
             return;
         }
 
@@ -105,6 +112,8 @@ function lerQrCodeArquivo() {
 }
 
 function verificarQrCode(data) {
+    console.log("Verificando QR Code:", data);
+
     const nomes = document.getElementById('nomesLista').value.split('\n').map(nome => nome.trim()).filter(nome => nome.length > 0);
     const titulo = document.getElementById('tituloLista').value.trim();
 
