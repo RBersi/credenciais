@@ -6,10 +6,10 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
     line-height: 1.6;
-    background-color: #f9f9f9;
-    color: #333;
+    background-color: #f4f4f4;
+    color: #2e2e2e;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -17,11 +17,11 @@ body {
 
 /* Cabeçalho */
 .header {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #e0e0e0;
+    color: #2e2e2e;
     padding: 1rem;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .navbar {
@@ -33,36 +33,37 @@ body {
 .nav-button {
     background-color: transparent;
     border: none;
-    color: white;
+    color: #2e2e2e;
     font-size: 1rem;
     cursor: pointer;
     padding: 0.5rem 1rem;
     transition: background-color 0.3s ease;
+    border-radius: 4px;
 }
 
 .nav-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* Conteúdo principal */
 .content {
     flex: 1;
-    padding: 1rem;
+    padding: 2rem 1rem;
     overflow-y: auto;
-    min-height: 0; /* Garante que o conteúdo flexível não ocupe mais espaço do que o disponível */
 }
 
 .screen {
-    display: none; /* Todas as telas são ocultas por padrão */
+    display: none;
 }
 
 .screen.active {
-    display: block; /* Apenas a tela ativa é exibida */
+    display: block;
 }
 
 h2 {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
 }
 
 form {
@@ -74,36 +75,38 @@ form {
 }
 
 label {
-    font-weight: bold;
+    font-weight: 500;
 }
 
 input, textarea {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 1rem;
+    background-color: #fff;
 }
 
 .button-container {
     display: flex;
     justify-content: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .main-button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #cfd8dc;
+    color: #2e2e2e;
     border: none;
     padding: 0.75rem 1.5rem;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.3s ease;
 }
 
 .main-button:hover {
-    background-color: #45a049;
+    background-color: #b0bec5;
 }
 
 #notificacoes {
@@ -114,32 +117,27 @@ input, textarea {
 
 /* Rodapé */
 .footer {
-    background-color: #333;
-    color: white;
+    background-color: #e0e0e0;
+    color: #2e2e2e;
     text-align: center;
     padding: 1rem;
     font-size: 0.9rem;
 }
 
 .footer a {
-    color: #4CAF50;
+    color: #607d8b;
     text-decoration: none;
 }
 
-#notificacoes {
-    margin-top: 1rem;
-    text-align: center;
-    color: #555;
-}
-
-.success {
-    color: green;
-}
-
-.error {
-    color: red;
-}
 .footer a:hover {
     text-decoration: underline;
 }
 
+/* Notificações */
+.success {
+    color: #388e3c;
+}
+
+.error {
+    color: #d32f2f;
+}
