@@ -8,17 +8,26 @@ let listaAtual = {
 function changeScreen(screenId) {
     console.log(`Alternando para a tela: '${screenId}'`);
 
+    // Verifica se a tela solicitada já está ativa
+    const currentScreen = document.querySelector(".screen.active");
+    if (currentScreen && currentScreen.id === screenId) {
+        console.log(`A tela '${screenId}' já está ativa.`);
+        return; // Sai da função sem fazer alterações
+    }
+
     // Encerra a câmera se estiver ativa
     if (screenId !== "camera") {
         encerrarCamera();
     }
 
+    // Remove a classe 'active' de todas as telas
     const screens = document.querySelectorAll(".screen");
     screens.forEach(screen => screen.classList.remove("active"));
 
-    const currentScreen = document.getElementById(screenId);
-    if (currentScreen) {
-        currentScreen.classList.add("active");
+    // Ativa a nova tela
+    const newScreen = document.getElementById(screenId);
+    if (newScreen) {
+        newScreen.classList.add("active");
         console.log(`Tela '${screenId}' ativada.`);
     } else {
         console.error(`Tela com ID '${screenId}' não encontrada.`);
@@ -303,6 +312,13 @@ function encerrarCamera() {
         video.srcObject = null; // Limpa o objeto de mídia do elemento <video>
         console.log("Câmera encerrada.");
     }
+
+    // Verifica se a tela ativa já é 'verificar-lista' antes de alternar
+    const currentScreen = document.querySelector(".screen.active");
+    if (currentScreen && currentScreen.id !== "verificar-lista") {
+        changeScreen("verificar-lista"); // Volta para a tela de verificação
+    }
+}
 
     changeScreen("verificar-lista"); // Volta para a tela de verificação
 }
