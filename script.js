@@ -269,6 +269,6 @@ function encerrarCamera() {
 // Adicionar eventos aos botões
 document.getElementById("gerar-qrcode").addEventListener("click", gerarQRCodes);
 document.getElementById("baixar-qrcode").addEventListener("click", baixarQRCodes);
-document.getElementById("verificar-lista").addEventListener("click", verificarLista);
+document.getElementById("btn-verificar-lista").addEventListener("click", verificarLista);
 document.getElementById("enviar-qrcode").addEventListener("click", enviarQRCode);
 document.getElementById("camera").addEventListener("click", abrirCamera);
