@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Listas</title>
+    <title>0 Gerenciador de Listas</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -71,12 +71,12 @@
                     <!-- Nomes serão inseridos dinamicamente -->
                 </ul>
             </div>
-        
+
             <div class="button-container">
                 <button type="button" class="main-button" id="enviar-qrcode">Enviar QR Code</button>
-                <button type="button" class="main-button" onclick="changeScreen('camera')">Ler QR Code com Câmera</button>
+                <button type="button" class="main-button" id="abrir-camera">Ler QR Code com Câmera</button>
             </div>
-        
+
             <div id="notificacoes">
                 <p id="mensagem-notificacao"></p>
             </div>
@@ -95,7 +95,7 @@
         <p>Desenvolvido por <a href="https://github.com/rbersi" target="_blank">Bersi</a></p>
     </footer>
 
-    <!-- Script será adicionado posteriormente -->
+    <!-- Script principal -->
     <script src="script.js" defer></script>
 </body>
 </html>
