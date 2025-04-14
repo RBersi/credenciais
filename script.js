@@ -1,4 +1,4 @@
-// Variáveis globais para armazenar dados
+// Variáveis globais
 let listaAtual = {
     titulo: "",
     nomes: []
@@ -6,66 +6,48 @@ let listaAtual = {
 
 let qrScanner;
 
-// Função para alternar entre telas
+// Alterna telas
 function changeScreen(screenId) {
-    console.log(`Alternando para a tela: '${screenId}'`);
-
     const currentScreen = document.querySelector(".screen.active");
-    if (currentScreen && currentScreen.id === screenId) {
-        console.log(`A tela '${screenId}' já está ativa.`);
-        return;
-    }
+    if (currentScreen?.id === screenId) return;
 
-    if (currentScreen && currentScreen.id === "camera" && screenId !== "camera") {
+    if (currentScreen?.id === "camera" && screenId !== "camera") {
         encerrarCamera();
     }
 
-    const screens = document.querySelectorAll(".screen");
-    screens.forEach(screen => screen.classList.remove("active"));
-
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     const newScreen = document.getElementById(screenId);
     if (newScreen) {
         newScreen.classList.add("active");
-        console.log(`Tela '${screenId}' ativada.`);
-        if (screenId === "camera") abrirCamera(); // Abrir câmera após ativar a tela
-    } else {
-        console.error(`Tela com ID '${screenId}' não encontrada.`);
+        if (screenId === "camera") abrirCamera();
     }
 }
 
 // Inicialização
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Sistema iniciado.");
     changeScreen("inicio");
     addResponsiveListeners();
 });
 
-// Listeners
+// Botões
 function addResponsiveListeners() {
     const buttons = [
         { id: "gerar-qrcode", callback: gerarQRCodes },
         { id: "baixar-qrcode", callback: baixarQRCodes },
         { id: "btn-verificar-lista", callback: verificarLista },
         { id: "enviar-qrcode", callback: enviarQRCode },
-        { id: "abrir-camera", callback: () => changeScreen("camera") } // Botão atualizado
+        { id: "abrir-camera", callback: () => changeScreen("camera") }
     ];
 
     buttons.forEach(({ id, callback }) => {
         const button = document.getElementById(id);
         if (button) {
-            button.addEventListener("click", callback);
-            button.addEventListener("touchstart", event => {
-                event.preventDefault();
-                callback();
-            });
-        } else {
-            console.error(`Botão com ID '${id}' não encontrado.`);
+            button.addEventListener("pointerdown", callback);
         }
     });
 
     document.querySelectorAll('.nav-button').forEach(button => {
-        button.addEventListener('click', encerrarCamera);
-        button.addEventListener('touchstart', encerrarCamera);
+        button.addEventListener("pointerdown", encerrarCamera);
     });
 }
 
@@ -74,22 +56,19 @@ function gerarQRCodes() {
     const titulo = document.getElementById("titulo-lista").value.trim();
     const nomesTexto = document.getElementById("nomes-lista").value.trim();
 
-    if (!titulo || !nomesTexto) {
-        alert("Por favor, preencha todos os campos.");
-        return;
-    }
+    if (!titulo || !nomesTexto) return alert("Preencha todos os campos.");
 
-    const nomes = nomesTexto.split("\n").map(nome => nome.trim()).filter(nome => nome !== "");
+    const nomes = nomesTexto.split("\n").map(n => n.trim()).filter(n => n);
+    if (!nomes.length) return alert("Insira pelo menos um nome válido.");
 
-    if (nomes.length === 0) {
-        alert("Insira pelo menos um nome válido.");
-        return;
-    }
+    listaAtual = { titulo, nomes };
 
-    listaAtual.titulo = titulo;
-    listaAtual.nomes = nomes;
+    const form = document.getElementById("form-criar-lista");
+    const existingContainer = form.querySelector(".qrcode-container");
+    if (existingContainer) existingContainer.remove();
 
     const container = document.createElement("div");
+    container.className = "qrcode-container";
     container.innerHTML = "<h3>QR Codes Gerados:</h3>";
 
     nomes.forEach(nome => {
@@ -106,16 +85,12 @@ function gerarQRCodes() {
         qrDiv.querySelector("canvas").setAttribute("title", `${nome} - ${titulo}`);
     });
 
-    const form = document.getElementById("form-criar-lista");
     form.appendChild(container);
 }
 
 // Download QR Codes
 function baixarQRCodes() {
-    if (listaAtual.nomes.length === 0) {
-        alert("Nenhuma lista foi gerada ainda.");
-        return;
-    }
+    if (!listaAtual.nomes.length) return alert("Nenhuma lista foi gerada.");
 
     const zip = new JSZip();
     const folder = zip.folder(listaAtual.titulo);
@@ -133,40 +108,28 @@ function baixarQRCodes() {
     });
 }
 
-// Verificação da lista
+// Verificar lista
 function verificarLista() {
     const titulo = document.getElementById("titulo-lista-inserir").value.trim();
     const nomesTexto = document.getElementById("nomes-lista-inserir").value.trim();
 
-    if (!titulo || !nomesTexto) {
-        alert("Por favor, preencha todos os campos.");
-        return;
-    }
+    if (!titulo || !nomesTexto) return alert("Preencha todos os campos.");
 
-    const nomes = nomesTexto.split("\n").map(nome => nome.trim()).filter(nome => nome !== "");
+    const nomes = nomesTexto.split("\n").map(n => n.trim()).filter(n => n);
+    if (!nomes.length) return alert("Insira pelo menos um nome válido.");
 
-    if (nomes.length === 0) {
-        alert("Insira pelo menos um nome válido.");
-        return;
-    }
+    listaAtual = { titulo, nomes };
 
-    listaAtual.titulo = titulo;
-    listaAtual.nomes = nomes;
+    const tituloEl = document.getElementById("titulo-verificacao");
+    const listaEl = document.getElementById("nomes-verificacao");
 
-    const tituloVerificacao = document.getElementById("titulo-verificacao");
-    const listaVerificacao = document.getElementById("nomes-verificacao");
+    if (!tituloEl || !listaEl) return console.error("Elementos da verificação não encontrados.");
 
-    if (!tituloVerificacao || !listaVerificacao) {
-        console.error("Elementos da tela de verificação não encontrados.");
-        return;
-    }
-
-    tituloVerificacao.textContent = titulo;
-    listaVerificacao.innerHTML = "";
+    tituloEl.textContent = titulo;
+    listaEl.innerHTML = "";
 
     nomes.forEach(nome => {
         const li = document.createElement("li");
-
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.className = "nome-checkbox";
@@ -177,13 +140,13 @@ function verificarLista() {
         label.prepend(checkbox);
 
         li.appendChild(label);
-        listaVerificacao.appendChild(li);
+        listaEl.appendChild(li);
     });
 
     changeScreen("verificar-lista");
 }
 
-// Upload de imagem com QR Code
+// Upload de QR por imagem
 function enviarQRCode() {
     const input = document.createElement("input");
     input.type = "file";
@@ -191,10 +154,7 @@ function enviarQRCode() {
 
     input.onchange = (event) => {
         const file = event.target.files[0];
-        if (!file) {
-            alert("Nenhum arquivo selecionado.");
-            return;
-        }
+        if (!file) return alert("Nenhum arquivo selecionado.");
 
         const reader = new FileReader();
         reader.onload = () => {
@@ -202,11 +162,10 @@ function enviarQRCode() {
             img.onload = () => {
                 QrScanner.scanImage(img)
                     .then(text => {
-                        console.log("QR Code detectado:", text);
                         processarQRCode(text);
                     })
-                    .catch(error => {
-                        console.error("Erro ao ler QR Code:", error);
+                    .catch(err => {
+                        console.error("Erro ao ler QR Code:", err);
                         alert("Erro ao ler o QR Code. Tente outra imagem.");
                     });
             };
@@ -218,72 +177,69 @@ function enviarQRCode() {
     input.click();
 }
 
-
-
-// Processa dados do QR Code
+// Processar QR
 function processarQRCode(qrData) {
-    try {
-        const mensagem = document.getElementById("mensagem-notificacao");
-        console.log("QR lido:", qrData);
+    const mensagem = document.getElementById("mensagem-notificacao");
 
-        const [nomeLido, tituloLido] = qrData.split(" - ").map(s => s.trim());
+    if (!qrData.includes(" - ")) {
+        mensagem.textContent = "Formato do QR Code inválido.";
+        mensagem.className = "error";
+        return;
+    }
 
-        if (!nomeLido || !tituloLido) {
-            mensagem.textContent = "Formato do QR Code inválido.";
-            mensagem.className = "error";
-            return;
-        }
+    const [nomeLido, tituloLido] = qrData.split(" - ").map(s => s.trim());
+    if (!nomeLido || !tituloLido) {
+        mensagem.textContent = "QR Code incompleto.";
+        mensagem.className = "error";
+        return;
+    }
 
-        if (tituloLido !== listaAtual.titulo) {
-            mensagem.textContent = "QR Code não corresponde à lista atual.";
-            mensagem.className = "error";
-            return;
-        }
+    if (tituloLido !== listaAtual.titulo) {
+        mensagem.textContent = "QR Code não corresponde à lista atual.";
+        mensagem.className = "error";
+        return;
+    }
 
-        const checkbox = Array.from(document.querySelectorAll(".nome-checkbox"))
-            .find(checkbox => checkbox.dataset.nome === nomeLido);
+    const checkbox = [...document.querySelectorAll(".nome-checkbox")]
+        .find(cb => cb.dataset.nome === nomeLido);
 
-        if (checkbox) {
-            checkbox.checked = true;
-            mensagem.textContent = `Nome "${nomeLido}" encontrado e marcado.`;
-            mensagem.className = "success";
-        } else {
-            mensagem.textContent = `Nome "${nomeLido}" não encontrado na lista.`;
-            mensagem.className = "error";
-        }
-    } catch (error) {
-        console.error("Erro ao processar QR Code:", error);
-        alert("Erro ao processar o QR Code.");
+    if (checkbox) {
+        checkbox.checked = true;
+        mensagem.textContent = `Nome "${nomeLido}" marcado.`;
+        mensagem.className = "success";
+    } else {
+        mensagem.textContent = `Nome "${nomeLido}" não está na lista.`;
+        mensagem.className = "error";
     }
 }
 
-
-// Ativa a câmera
+// Câmera
 function abrirCamera() {
     const video = document.getElementById("video-camera");
 
-    QrScanner.hasCamera().then(hasCamera => {
-        if (!hasCamera) {
-            alert("Nenhuma câmera encontrada.");
-            return;
-        }
+    QrScanner.hasCamera()
+        .then(hasCamera => {
+            if (!hasCamera) return alert("Nenhuma câmera encontrada.");
 
-        qrScanner = new QrScanner(video, result => {
-            console.log("QR capturado:", result);
-            processarQRCode(result);
-            encerrarCamera(); // Fecha após ler QR
-        }, {
-            highlightScanRegion: true,
-            highlightCodeOutline: true
-        });
+            qrScanner = new QrScanner(video, result => {
+                processarQRCode(result);
+                encerrarCamera();
+            }, {
+                highlightScanRegion: true,
+                highlightCodeOutline: true
+            });
 
-        qrScanner.start().then(() => {
-            console.log("Leitura de QR iniciada.");
-        }).catch(err => {
-            console.error("Erro ao iniciar câmera:", err);
-            alert("Erro ao acessar a câmera.");
+            qrScanner.start().then(() => {
+                console.log("Câmera iniciada.");
+            }).catch(err => {
+                console.error("Erro ao iniciar câmera:", err);
+                alert("Erro ao acessar a câmera.");
+            });
+        })
+        .catch(err => {
+            console.error("Erro ao verificar câmera:", err);
+            alert("Não foi possível verificar a câmera.");
         });
-    });
 }
 
 function encerrarCamera() {
@@ -291,9 +247,7 @@ function encerrarCamera() {
         qrScanner.stop();
         qrScanner.destroy();
         qrScanner = null;
-        console.log("Câmera encerrada.");
     }
-
     const video = document.getElementById("video-camera");
-    video.srcObject = null;
+    if (video) video.srcObject = null;
 }
