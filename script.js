@@ -258,7 +258,5 @@ function encerrarCamera() {
     const video = document.getElementById("video-camera");
     if (video) video.srcObject = null;
 
-    setTimeout(() => {
-        changeScreen("verificar-lista");
-    }, 300);
+   changeScreen("verificar-lista");
 }
