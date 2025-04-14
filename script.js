@@ -179,39 +179,46 @@ function enviarQRCode() {
 
 // Processar QR
 function processarQRCode(qrData) {
-    const mensagem = document.getElementById("mensagem-notificacao");
+    try {
+        const mensagem = document.getElementById("mensagem-notificacao");
+        console.log("QR lido:", qrData);
 
-    if (!qrData.includes(" - ")) {
-        mensagem.textContent = "Formato do QR Code inválido.";
-        mensagem.className = "error";
-        return;
-    }
+        // Se a resposta não for uma string, tente acessá-la corretamente
+        if (typeof qrData === 'object' && qrData.data) {
+            qrData = qrData.data;
+        }
 
-    const [nomeLido, tituloLido] = qrData.split(" - ").map(s => s.trim());
-    if (!nomeLido || !tituloLido) {
-        mensagem.textContent = "QR Code incompleto.";
-        mensagem.className = "error";
-        return;
-    }
+        const [nomeLido, tituloLido] = qrData.split(" - ").map(s => s.trim());
 
-    if (tituloLido !== listaAtual.titulo) {
-        mensagem.textContent = "QR Code não corresponde à lista atual.";
-        mensagem.className = "error";
-        return;
-    }
+        if (!nomeLido || !tituloLido) {
+            mensagem.textContent = "Formato do QR Code inválido.";
+            mensagem.className = "error";
+            return;
+        }
 
-    const checkbox = [...document.querySelectorAll(".nome-checkbox")]
-        .find(cb => cb.dataset.nome === nomeLido);
+        if (tituloLido !== listaAtual.titulo) {
+            mensagem.textContent = "QR Code não corresponde à lista atual.";
+            mensagem.className = "error";
+            return;
+        }
 
-    if (checkbox) {
-        checkbox.checked = true;
-        mensagem.textContent = `Nome "${nomeLido}" marcado.`;
-        mensagem.className = "success";
-    } else {
-        mensagem.textContent = `Nome "${nomeLido}" não está na lista.`;
-        mensagem.className = "error";
+        const checkbox = Array.from(document.querySelectorAll(".nome-checkbox"))
+            .find(checkbox => checkbox.dataset.nome === nomeLido);
+
+        if (checkbox) {
+            checkbox.checked = true;
+            mensagem.textContent = `Nome "${nomeLido}" encontrado e marcado.`;
+            mensagem.className = "success";
+        } else {
+            mensagem.textContent = `Nome "${nomeLido}" não encontrado na lista.`;
+            mensagem.className = "error";
+        }
+    } catch (error) {
+        console.error("Erro ao processar QR Code:", error);
+        alert("Erro ao processar o QR Code.");
     }
 }
+
 
 // Câmera
 function abrirCamera() {
