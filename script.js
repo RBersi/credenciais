@@ -182,50 +182,61 @@ function verificarLista() {
 }
 
 // Upload de imagem com QR Code
-function enviarQRCode() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-
-    input.onchange = (event) => {
-        const file = event.target.files[0];
-        if (!file) {
-            alert("Nenhum arquivo selecionado.");
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const result = e.target.result;
-            processarQRCode(result);
+    function enviarQRCode() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+    
+        input.onchange = (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                alert("Nenhum arquivo selecionado.");
+                return;
+            }
+    
+            QrScanner.scanImage(file, { returnDetailedScanResult: false })
+                .then(text => {
+                    processarQRCode(text);
+                })
+                .catch(error => {
+                    console.error("Erro ao ler QR Code:", error);
+                    alert("Erro ao ler o QR Code. Tente outra imagem.");
+                });
         };
-        reader.readAsDataURL(file);
-    };
+    
+        input.click();
+    }
 
-    input.click();
-}
 
 // Processa dados do QR Code
 function processarQRCode(qrData) {
     try {
         const mensagem = document.getElementById("mensagem-notificacao");
+        console.log("QR lido:", qrData);
 
-        if (!qrData.includes(listaAtual.titulo)) {
+        const [nomeLido, tituloLido] = qrData.split(" - ").map(s => s.trim());
+
+        if (!nomeLido || !tituloLido) {
+            mensagem.textContent = "Formato do QR Code inválido.";
+            mensagem.className = "error";
+            return;
+        }
+
+        if (tituloLido !== listaAtual.titulo) {
             mensagem.textContent = "QR Code não corresponde à lista atual.";
             mensagem.className = "error";
             return;
         }
 
-        const nome = qrData.replace(listaAtual.titulo, "").trim();
         const checkbox = Array.from(document.querySelectorAll(".nome-checkbox"))
-            .find(checkbox => checkbox.dataset.nome === nome);
+            .find(checkbox => checkbox.dataset.nome === nomeLido);
 
         if (checkbox) {
             checkbox.checked = true;
-            mensagem.textContent = `Nome "${nome}" encontrado e marcado.`;
+            mensagem.textContent = `Nome "${nomeLido}" encontrado e marcado.`;
             mensagem.className = "success";
         } else {
-            mensagem.textContent = "Nome não encontrado na lista.";
+            mensagem.textContent = `Nome "${nomeLido}" não encontrado na lista.`;
             mensagem.className = "error";
         }
     } catch (error) {
@@ -233,6 +244,7 @@ function processarQRCode(qrData) {
         alert("Erro ao processar o QR Code.");
     }
 }
+
 
 // Ativa a câmera
 function abrirCamera() {
