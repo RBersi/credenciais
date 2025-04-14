@@ -8,16 +8,17 @@ let listaAtual = {
 function changeScreen(screenId) {
     console.log(`Alternando para a tela: '${screenId}'`);
 
+    // Encerra a câmera se estiver ativa
+    if (screenId !== "camera") {
+        encerrarCamera();
+    }
+
     const screens = document.querySelectorAll(".screen");
     screens.forEach(screen => screen.classList.remove("active"));
 
     const currentScreen = document.getElementById(screenId);
     if (currentScreen) {
         currentScreen.classList.add("active");
-
-        // Forçar atualização da tela
-        currentScreen.offsetHeight; // Trigger reflow
-
         console.log(`Tela '${screenId}' ativada.`);
     } else {
         console.error(`Tela com ID '${screenId}' não encontrada.`);
@@ -219,9 +220,9 @@ function processarQRCode(qrData) {
 function abrirCamera() {
     const video = document.getElementById("video-camera");
 
-    // Solicita permissão para acessar a câmera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
         .then(stream => {
+            console.log("Câmera acessada com sucesso.");
             video.srcObject = stream;
             video.play();
 
@@ -250,7 +251,7 @@ function abrirCamera() {
         })
         .catch(error => {
             console.error("Erro ao acessar a câmera:", error);
-            alert("Não foi possível acessar a câmera. Verifique as permissões.");
+            alert("Não foi possível acessar a câmera. Verifique as permissões e tente novamente.");
         });
 }
 
@@ -261,9 +262,16 @@ function encerrarCamera() {
 
     if (stream) {
         const tracks = stream.getTracks();
-        tracks.forEach(track => track.stop());
-        video.srcObject = null;
+        tracks.forEach(track => {
+            track.stop(); // Para cada faixa de mídia, pare a transmissão
+            console.log("Faixa de mídia encerrada.");
+        });
+
+        video.srcObject = null; // Limpa o objeto de mídia do elemento <video>
+        console.log("Câmera encerrada.");
     }
+
+    changeScreen("verificar-lista"); // Volta para a tela de verificação
 }
 
 // Garantir que a câmera seja encerrada ao sair da tela
