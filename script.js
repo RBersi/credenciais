@@ -46,9 +46,21 @@ function addResponsiveListeners() {
         }
     });
 
-    document.querySelectorAll('.nav-button').forEach(button => {
-        button.addEventListener("pointerdown", encerrarCamera);
+document.querySelectorAll('.nav-button').forEach(button => {
+    button.addEventListener('click', () => {
+        if (document.getElementById("camera").classList.contains("active")) {
+            encerrarCamera();
+        }
     });
+
+    button.addEventListener('touchstart', event => {
+        event.preventDefault();
+        if (document.getElementById("camera").classList.contains("active")) {
+            encerrarCamera();
+        }
+    });
+});
+
 }
 
 // Geração de QR Codes
@@ -258,5 +270,9 @@ function encerrarCamera() {
     const video = document.getElementById("video-camera");
     if (video) video.srcObject = null;
 
-   // changeScreen("verificar-lista"); 
+    // Só muda de tela se estivermos na câmera
+    if (document.getElementById("camera").classList.contains("active")) {
+        changeScreen("verificar-lista");
+    }
 }
+
