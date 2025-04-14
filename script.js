@@ -4,6 +4,8 @@ let listaAtual = {
     nomes: []
 };
 
+let qrScanner;
+
 // Função para alternar entre telas
 function changeScreen(screenId) {
     console.log(`Alternando para a tela: '${screenId}'`);
@@ -182,30 +184,40 @@ function verificarLista() {
 }
 
 // Upload de imagem com QR Code
-    function enviarQRCode() {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-    
-        input.onchange = (event) => {
-            const file = event.target.files[0];
-            if (!file) {
-                alert("Nenhum arquivo selecionado.");
-                return;
-            }
-    
-            QrScanner.scanImage(file, { returnDetailedScanResult: false })
-                .then(text => {
-                    processarQRCode(text);
-                })
-                .catch(error => {
-                    console.error("Erro ao ler QR Code:", error);
-                    alert("Erro ao ler o QR Code. Tente outra imagem.");
-                });
+function enviarQRCode() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            alert("Nenhum arquivo selecionado.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+                QrScanner.scanImage(img)
+                    .then(text => {
+                        console.log("QR Code detectado:", text);
+                        processarQRCode(text);
+                    })
+                    .catch(error => {
+                        console.error("Erro ao ler QR Code:", error);
+                        alert("Erro ao ler o QR Code. Tente outra imagem.");
+                    });
+            };
+            img.src = reader.result;
         };
-    
-        input.click();
-    }
+        reader.readAsDataURL(file);
+    };
+
+    input.click();
+}
+
 
 
 // Processa dados do QR Code
@@ -250,52 +262,38 @@ function processarQRCode(qrData) {
 function abrirCamera() {
     const video = document.getElementById("video-camera");
 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-            console.log("Câmera acessada com sucesso.");
-            video.srcObject = stream;
-            video.play();
+    QrScanner.hasCamera().then(hasCamera => {
+        if (!hasCamera) {
+            alert("Nenhuma câmera encontrada.");
+            return;
+        }
 
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-
-            function processFrame() {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
-
-                    if (qrCode) {
-                        processarQRCode(qrCode.data);
-                        encerrarCamera(); // Fecha após ler QR
-                    }
-                }
-                requestAnimationFrame(processFrame);
-            }
-
-            processFrame();
-        })
-        .catch(error => {
-            console.error("Erro ao acessar a câmera:", error);
-            alert("Não foi possível acessar a câmera. Verifique as permissões e tente novamente.");
+        qrScanner = new QrScanner(video, result => {
+            console.log("QR capturado:", result);
+            processarQRCode(result);
+            encerrarCamera(); // Fecha após ler QR
+        }, {
+            highlightScanRegion: true,
+            highlightCodeOutline: true
         });
+
+        qrScanner.start().then(() => {
+            console.log("Leitura de QR iniciada.");
+        }).catch(err => {
+            console.error("Erro ao iniciar câmera:", err);
+            alert("Erro ao acessar a câmera.");
+        });
+    });
 }
 
-// Fecha a câmera
 function encerrarCamera() {
-    const video = document.getElementById("video-camera");
-    const stream = video.srcObject;
-
-    if (stream) {
-        stream.getTracks().forEach(track => {
-            track.stop();
-            console.log("Faixa de mídia encerrada.");
-        });
-
-        video.srcObject = null;
+    if (qrScanner) {
+        qrScanner.stop();
+        qrScanner.destroy();
+        qrScanner = null;
         console.log("Câmera encerrada.");
     }
+
+    const video = document.getElementById("video-camera");
+    video.srcObject = null;
 }
