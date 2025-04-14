@@ -30,7 +30,40 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Sistema iniciado.");
     // Inicialmente, exibe a tela de início
     changeScreen("inicio");
+
+    // Adiciona listeners responsivos para todos os botões
+    addResponsiveListeners();
 });
+
+// Função para adicionar listeners responsivos (toque + clique)
+function addResponsiveListeners() {
+    const buttons = [
+        { id: "gerar-qrcode", callback: gerarQRCodes },
+        { id: "baixar-qrcode", callback: baixarQRCodes },
+        { id: "btn-verificar-lista", callback: verificarLista },
+        { id: "enviar-qrcode", callback: enviarQRCode },
+        { id: "camera", callback: abrirCamera }
+    ];
+
+    buttons.forEach(({ id, callback }) => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.addEventListener("click", callback); // Para desktop
+            button.addEventListener("touchstart", (event) => {
+                event.preventDefault(); // Evita comportamento padrão de scroll
+                callback();
+            }); // Para mobile
+        } else {
+            console.error(`Botão com ID '${id}' não encontrado.`);
+        }
+    });
+
+    // Garantir que a câmera seja encerrada ao sair da tela
+    document.querySelectorAll('.nav-button').forEach(button => {
+        button.addEventListener('click', encerrarCamera);
+        button.addEventListener('touchstart', encerrarCamera);
+    });
+}
 
 // Função para gerar QR Codes
 function gerarQRCodes() {
@@ -273,16 +306,3 @@ function encerrarCamera() {
 
     changeScreen("verificar-lista"); // Volta para a tela de verificação
 }
-
-// Garantir que a câmera seja encerrada ao sair da tela
-document.querySelectorAll('.nav-button').forEach(button => {
-    button.addEventListener('click', encerrarCamera);
-});
-
-
-// Adicionar eventos aos botões
-document.getElementById("gerar-qrcode").addEventListener("click", gerarQRCodes);
-document.getElementById("baixar-qrcode").addEventListener("click", baixarQRCodes);
-document.getElementById("btn-verificar-lista").addEventListener("click", verificarLista);
-document.getElementById("enviar-qrcode").addEventListener("click", enviarQRCode);
-document.getElementById("camera").addEventListener("click", abrirCamera);
