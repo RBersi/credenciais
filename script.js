@@ -15,8 +15,8 @@ function changeScreen(screenId) {
         return; // Sai da função sem fazer alterações
     }
 
-    // Encerra a câmera se estiver ativa
-    if (screenId !== "camera") {
+    // Encerra a câmera apenas se estiver saindo da tela da câmera
+    if (currentScreen && currentScreen.id === "camera" && screenId !== "camera") {
         encerrarCamera();
     }
 
@@ -302,6 +302,7 @@ function encerrarCamera() {
     const video = document.getElementById("video-camera");
     const stream = video.srcObject;
 
+    // Encerra a câmera, se estiver ativa
     if (stream) {
         const tracks = stream.getTracks();
         tracks.forEach(track => {
@@ -313,12 +314,9 @@ function encerrarCamera() {
         console.log("Câmera encerrada.");
     }
 
-    // Verifica se a tela ativa já é 'verificar-lista' antes de alternar
+    // Alterna para a tela de verificação apenas se a tela atual não for 'verificar-lista'
     const currentScreen = document.querySelector(".screen.active");
     if (currentScreen && currentScreen.id !== "verificar-lista") {
-        changeScreen("verificar-lista"); // Volta para a tela de verificação
+        changeScreen("verificar-lista");
     }
-}
-
-    changeScreen("verificar-lista"); // Volta para a tela de verificação
 }
