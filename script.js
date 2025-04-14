@@ -218,6 +218,8 @@ function processarQRCode(qrData) {
 // Função para abrir a câmera
 function abrirCamera() {
     const video = document.getElementById("video-camera");
+
+    // Solicita permissão para acessar a câmera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
         .then(stream => {
             video.srcObject = stream;
@@ -248,7 +250,7 @@ function abrirCamera() {
         })
         .catch(error => {
             console.error("Erro ao acessar a câmera:", error);
-            alert("Não foi possível acessar a câmera.");
+            alert("Não foi possível acessar a câmera. Verifique as permissões.");
         });
 }
 
@@ -262,9 +264,13 @@ function encerrarCamera() {
         tracks.forEach(track => track.stop());
         video.srcObject = null;
     }
-
-    changeScreen("verificar-lista");
 }
+
+// Garantir que a câmera seja encerrada ao sair da tela
+document.querySelectorAll('.nav-button').forEach(button => {
+    button.addEventListener('click', encerrarCamera);
+});
+
 
 // Adicionar eventos aos botões
 document.getElementById("gerar-qrcode").addEventListener("click", gerarQRCodes);
